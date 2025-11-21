@@ -122,7 +122,7 @@ def eval_with_interventions(intervenable,
   padding_offset = get_label_offset(tokenizer)
   num_inv = len(intervenable.interventions)
   for split in split_to_dataset:
-    # Asssume all inputs have the same max length.
+    # Assume all inputs have the same max length.
     prompt_max_length = split_to_inv_locations[split_to_dataset[split][0]
                                                ['split']]['max_input_length']
     eval_dataloader = get_dataloader(split_to_dataset[split],
@@ -321,8 +321,10 @@ def load_intervenable_with_autoencoder(model, autoencoder, inv_dims, layer):
   intervenable.set_device("cuda")
   intervenable.disable_model_gradients()
   for k in intervenable.interventions:
-    intervenable.interventions[k][0].autoencoder = autoencoder
-    intervenable.interventions[k][0].inv_dims = inv_dims
+    # intervenable.interventions[k][0].autoencoder = autoencoder
+    # intervenable.interventions[k][0].inv_dims = inv_dims
+    intervenable.interventions[k].autoencoder = autoencoder
+    intervenable.interventions[k].inv_dims = inv_dims
   intervenable.model.eval()
   return intervenable
 
@@ -362,8 +364,9 @@ def load_intervenable(base_model, pretrained_weight_or_path,
   intervenable.set_device("cuda")
   intervenable.disable_model_gradients()
   for k, v in rotate_layers.items():
-    intervenable.interventions[k][0].rotate_layer = v
-    intervenable.interventions[k][0].set_interchange_dim(
-        interchange_dim=v.weight.shape[0])
+    # intervenable.interventions[k][0].rotate_layer = v
+    # intervenable.interventions[k][0].set_interchange_dim(interchange_dim=v.weight.shape[0])
+    intervenable.interventions[k].rotate_layer = v
+    intervenable.interventions[k].set_interchange_dim(interchange_dim=v.weight.shape[0])
   intervenable.model.eval()
   return intervenable

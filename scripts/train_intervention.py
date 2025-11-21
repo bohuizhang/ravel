@@ -75,12 +75,18 @@ def train_intervention(config, model, tokenizer, split_to_dataset):
   regularization_coefficient = config['regularization_coefficient']
   optimizer_params = []
   for k, v in intervenable.interventions.items():
-    if isinstance(v[0], LowRankRotatedSpaceIntervention):
-      optimizer_params += [{'params': v[0].rotate_layer.parameters()}]
-    elif isinstance(v[0], DifferentialBinaryMasking):
-      optimizer_params += [{'params': v[0].parameters()}]
+    # if isinstance(v[0], LowRankRotatedSpaceIntervention):
+    #   optimizer_params += [{'params': v[0].rotate_layer.parameters()}]
+    # elif isinstance(v[0], DifferentialBinaryMasking):
+    #   optimizer_params += [{'params': v[0].parameters()}]
+    # else:
+    #   raise NotImplementedError
+    if isinstance(v, LowRankRotatedSpaceIntervention):
+        optimizer_params += [{'params': v.rotate_layer.parameters()}]
+    elif isinstance(v, DifferentialBinaryMasking):
+        optimizer_params += [{'params': v.parameters()}]
     else:
-      raise NotImplementedError
+        raise NotImplementedError
   optimizer = torch.optim.AdamW(optimizer_params,
                                 lr=config['init_lr'],
                                 weight_decay=0)
@@ -148,13 +154,13 @@ def train_intervention(config, model, tokenizer, split_to_dataset):
                                         pad_token_id=tokenizer.pad_token_id)
       # Add sparsity loss for Differential Binary Masking.
       for k, v in intervenable.interventions.items():
-        if isinstance(
-            list(intervenable.interventions.values())[0][0],
-            DifferentialBinaryMasking):
-          loss += regularization_coefficient * intervenable.interventions[k][
-              0].get_sparsity_loss()
-          intervenable.interventions[k][0].set_temperature(
-              temperature_schedule[scheduler._step_count])
+        # if isinstance(list(intervenable.interventions.values())[0][0], DifferentialBinaryMasking):
+        #   loss += regularization_coefficient * intervenable.interventions[k][0].get_sparsity_loss()
+        #   intervenable.interventions[k][0].set_temperature(temperature_schedule[scheduler._step_count])
+        if isinstance(list(intervenable.interventions.values())[0], DifferentialBinaryMasking):
+            print("isinstance(list(intervenable.interventions.values())[0], DifferentialBinaryMasking)")
+            loss += regularization_coefficient * intervenable.interventions[k].get_sparsity_loss()
+            intervenable.interventions[k].set_temperature(temperature_schedule[scheduler._step_count])
 
       aggreated_stats['loss'].append(loss.item())
       aggreated_stats['acc'].append(eval_metrics["accuracy"])
