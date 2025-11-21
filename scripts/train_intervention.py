@@ -158,7 +158,6 @@ def train_intervention(config, model, tokenizer, split_to_dataset):
         #   loss += regularization_coefficient * intervenable.interventions[k][0].get_sparsity_loss()
         #   intervenable.interventions[k][0].set_temperature(temperature_schedule[scheduler._step_count])
         if isinstance(list(intervenable.interventions.values())[0], DifferentialBinaryMasking):
-            print("isinstance(list(intervenable.interventions.values())[0], DifferentialBinaryMasking)")
             loss += regularization_coefficient * intervenable.interventions[k].get_sparsity_loss()
             intervenable.interventions[k].set_temperature(temperature_schedule[scheduler._step_count])
 
